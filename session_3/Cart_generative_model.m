@@ -6,8 +6,10 @@ B=[0,1/m]';
 C=[1,0];
 D=0;
 
+%% Euler Numerical Method
 Ad=eye(2)+Ts*A;
 Bd=Ts*B;
+
 t=0:Ts:L;
 x=zeros([2,length(t)]);
 y=zeros([1,length(t)]);
