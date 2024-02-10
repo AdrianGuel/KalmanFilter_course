@@ -8,13 +8,17 @@ close all;
 Ts=1e-2; L=1000;
 CA_generative_model;
 
-P=1e5*eye(3);
-alpha=0.1;
+P=1e4*eye(3);
+Q=1e-3*eye(3);
+R=1e-2;
+alpha=0.001;
 
 x_pred=zeros([3,length(t)]);
 x_est=zeros([3,length(t)]);
 y_pred=zeros([1,length(t)]);
-v_sum=zeros([1,10]);
+v_sum=zeros([1,15]);
+eps_max=0.1;
+Q_scale_factor=10; count=0;
 
 x_pred(:,1)=[3,-1,10]';
 for k=2:length(t)
@@ -29,19 +33,38 @@ for k=2:length(t)
     x_est(:,k)=x_pred(:,k)+L*(y(k)-y_pred(k));
     P=P_pred-L*P_y*L';
     
-    %% Innovation based adaptive method
+    %% Innovation based adaptive method 
     % v_sum(end)=y(k)-y_pred(k);
     % v_sum=circshift(v_sum,-1);
     % vk=mean(v_sum);
     % Q=vk*(L*L');
 
-    %% Qlearning
+    %% Q-learning
     %Q=(1-alpha)*Q+alpha*L*(y(k)-y_pred(k))*(y(k)-y_pred(k))'*L';
     
     %% scaling factor
-    % v_sum(end)=y(k)-y_pred(k);
-    % v_sum=circshift(v_sum,-1);
-    % alpha_k=(mean(v_sum)-R)/trace(C*P_pred*C');
+    %v_sum(end)=y(k)-y_pred(k);
+    %v_sum=circshift(v_sum,-1);
+    %alpha_k=(mean(v_sum)-R)/trace(C*P_pred*C');
+
+    %% Bar Shalom 
+    %eps= (y(k)-y_pred(k))/P_y;
+    %if eps > eps_max
+    %    Q = Q*Q_scale_factor;
+    %    count = count + 1;
+    %elseif count > 0
+    %    Q = Q/Q_scale_factor;
+    %    count = count- 1;
+    %end
+
+    %% Z 
+   %if abs(y) > std_scale * std_dev
+   %     Q= Q+phi;
+   %     count = count + 1;
+   %elseif count > 0
+   %     Q = Q - phi;
+   %     count = count- 1;
+   %end
 end
 
 subplot(3,1,1)
