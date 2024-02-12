@@ -4,24 +4,20 @@
 
 clearvars;
 close all;
-
+Ts=1e-2; L=50;
 nonlinearMSD;
 
-P=1e4*eye(2);
+P=1e5*eye(2);
 Q=1e-6*eye(2);
-R=1e-2;
-alpha=0.001;
+R=1e-5;
+alpha=0.03;
 
 x_pred=zeros([2,length(t)]);
 x_est=zeros([2,length(t)]);
 y_pred=zeros([1,length(t)]);
-C=[1,0];
-%% Q adaptive rules
-v_sum=zeros([1,15]);
-eps_max=0.1;
-Q_scale_factor=10; count=0;
+C=[0,1];
 
-x_pred(:,1)=[1,0]';
+x_pred(:,1)=[0.1,0.2]';
 for k=2:length(t)
     x_pred(1,k)=x_pred(1,k-1)+Ts*(x_pred(2,k));
     x_pred(2,k)=x_pred(2,k-1)+(Ts/m)*(-(w^2)*x_pred(1,k-1)^3-gamma*x_pred(2,k-1)+u);
@@ -35,60 +31,29 @@ for k=2:length(t)
     L=P_xy/P_y;
     x_est(:,k)=x_pred(:,k)+L*(y(k)-y_pred(k));
     P=P_pred-L*P_y*L';
-    
-    %% Innovation based adaptive method 
-     % v_sum(end)=y(k)-y_pred(k);
-     % v_sum=circshift(v_sum,-1);
-     % vk=mean(v_sum);
-     % Q=vk*(L*L');
 
     %% Q-learning
-    %Q=(1-alpha)*Q+alpha*L*(y(k)-y_pred(k))*(y(k)-y_pred(k))'*L';
-    
-    %% scaling factor
-    %v_sum(end)=y(k)-y_pred(k);
-    %v_sum=circshift(v_sum,-1);
-    %alpha_k=(mean(v_sum)-R)/trace(C*P_pred*C');
-
-    %% Bar Shalom 
-    % eps= (y(k)-y_pred(k))/P_y;
-    % if eps > eps_max
-    %     Q = Q*Q_scale_factor;
-    %     count = count + 1;
-    % elseif count > 0
-    %     Q = Q/Q_scale_factor;
-    %     count = count- 1;
-    % end
-
-    %% Z 
-   % if abs(y) > std_scale * std_dev
-   %      Q= Q+phi;
-   %      count = count + 1;
-   % elseif count > 0
-   %      Q = Q - phi;
-   %      count = count- 1;
-   % end
+    Q=(1-alpha)*Q+alpha*L*(y(k)-y_pred(k))*(y(k)-y_pred(k))'*L';
 end
 
 figure
 subplot(2,1,1)
 yyaxis left
-plot(t,y,'b')
+plot(t,x(1,:),'b')
 hold on
 plot(t,x_est(1,:),'k--')
 ylabel("position")
 yyaxis right
-plot(t,abs(y-x_est(1,:)))
-legend("truth", "estimate", "error")
+plot(t,abs(x(1,:)-x_est(1,:)))
 
 
 subplot(2,1,2)
 yyaxis left
-plot(t,x(2,:),'b')
+plot(t,y,'b')
 hold on
 plot(t,x_est(2,:),'k--')
 ylabel("velocity")
 yyaxis right
-plot(t,abs(x(2,:)-x_est(2,:)))
+plot(t,abs(y-x_est(2,:)))
 legend("truth", "estimate", "error")
 
