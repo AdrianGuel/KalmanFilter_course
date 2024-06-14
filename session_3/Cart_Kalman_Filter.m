@@ -17,9 +17,9 @@ x_pred=zeros([2,length(t)]);
 x_est=zeros([2,length(t)]);
 y_pred=zeros([1,length(t)]);
 
-x_pred(:,1)=[6,0]';
+x_est(:,1)=[6,0]';
 for k=2:length(t)
-    x_pred(:,k)=Ad*x_pred(:,k-1)+Bd*u;
+    x_pred(:,k)=Ad*x_est(:,k-1)+Bd*u;
     y_pred(k)=C*x_pred(:,k);
 
     P_pred=Ad*P*Ad'+Q;
